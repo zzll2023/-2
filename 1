@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock Drawing Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Clock Drawing Tool</h1>
+        <div id="clock-container">
+            <canvas id="clock-canvas"></canvas>
+        </div>
+        <div>
+            <label for="timePicker">Set Time: </label>
+            <input type="time" id="timePicker" value="11:10">
+        </div>
+        <button onclick="drawClock()">Update Clock</button>
+        <hr>
+        <h2>Painting Area</h2>
+        <canvas id="paint-canvas" width="400" height="400"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.container {
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 20px;
+    background: #fff;
+}
+
+#clock-canvas, #paint-canvas {
+    border: 1px solid black;
+    margin-top: 20px;
+}
+const clockCanvas = document.getElementById('clock-canvas');
+const paintCanvas = document.getElementById('paint-canvas');
+const ctxClock = clockCanvas.getContext('2d');
+const ctxPaint = paintCanvas.getContext('2d');
+clockCanvas.width = 200;
+clockCanvas.height = 200;
+
+function drawClock() {
+    let time = document.getElementById('timePicker').value.split(':');
+    let hours = parseInt(time[0]);
+    let minutes = parseInt(time[1]);
+    ctxClock.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
+    drawFace(ctxClock, clockCanvas.width / 2, clockCanvas.height / 2, 90);
+    drawHands(ctxClock, hours, minutes, clockCanvas.width / 2, clockCanvas.height / 2, 90);
+}
+
+function drawFace(ctx, x, y, radius) {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+}
+
+function drawHands(ctx, hour, minute, x, y, length) {
+    // Hour hand
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + length * Math.cos(Math.PI / 2 - hour * (30 * Math.PI / 180)), y - length * Math.sin(Math.PI / 2 - hour * (30 * Math.PI / 180)));
+    ctx.stroke();
+
+    // Minute hand
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + length * Math.cos(Math.PI / 2 - minute * (6 * Math.PI / 180)), y - length * Math.sin(Math.PI / 2 - minute * (6 * Math.PI / 180)));
+    ctx.stroke();
+}
+
+// Initialize the clock at 11:10
+document.getElementById('timePicker').dispatchEvent(new Event('change'));
+
+// Basic painting functionality (additional logic required for full paint tool)
+paintCanvas.addEventListener('mousedown', function(e) {
+    ctxPaint.beginPath();
+    ctxPaint.moveTo(e.offsetX, e.offsetY);
+    paintCanvas.addEventListener('mousemove', onPaint);
+});
+
+paintCanvas.addEventListener('mouseup', function() {
+    paintCanvas.removeEventListener('mousemove', onPaint);
+});
+
+function onPaint(e) {
+    ctxPaint.lineTo(e.offsetX, e.offsetY);
+    ctxPaint.stroke();
+}
